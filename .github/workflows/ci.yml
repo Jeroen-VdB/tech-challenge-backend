@@ -7,7 +7,7 @@ on:
     branches: [ "main", "master", "develop" ]
 
 jobs:
-  build-lint-test:
+  build:
     runs-on: ubuntu-latest
     
     services:
@@ -22,6 +22,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: HatsuneMiku3939/direnv-action@v1
+        with:
+            direnvVersion: 2.32.1
+            masks: SECRET1, SECRET2
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
