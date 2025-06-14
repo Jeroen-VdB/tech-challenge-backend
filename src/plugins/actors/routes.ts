@@ -1,6 +1,7 @@
 import { ServerRoute } from '@hapi/hapi'
 import Joi from 'joi'
 import * as lib from '../../lib/actors'
+import Boom from '@hapi/boom'
 
 export const actorRoutes: ServerRoute[] = [
   {
@@ -85,6 +86,70 @@ export const actorRoutes: ServerRoute[] = [
       validate: {
         params: Joi.object({
           id: Joi.number().integer().required()
+        })
+      }
+    }  },
+  {
+    method: 'GET',
+    path: '/actors/{id}/movies',
+    handler: async (request, h) => {
+      const id = parseInt(request.params.id, 10)
+      const actorWithMovies = await lib.getMoviesByActor(id)
+      if (!actorWithMovies) {
+        return Boom.notFound(`Actor with ID ${id} not found`)
+      }
+      return h.response(actorWithMovies)
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          id: Joi.number().integer().required()
+        })
+      }
+    }
+  },
+  {
+    method: 'POST',
+    path: '/actors/{actorId}/movies/{movieId}',
+    handler: async (request, h) => {
+      const actorId = parseInt(request.params.actorId, 10)
+      const movieId = parseInt(request.params.movieId, 10)
+      
+      const success = await lib.addMovieToActor(actorId, movieId)
+      if (!success) {
+        return Boom.badRequest('Unable to associate actor with movie. Check that both IDs exist and are not already associated.')
+      }
+      
+      return h.response().code(201)
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          actorId: Joi.number().integer().required(),
+          movieId: Joi.number().integer().required()
+        })
+      }
+    }
+  },
+  {
+    method: 'DELETE',
+    path: '/actors/{actorId}/movies/{movieId}',
+    handler: async (request, h) => {
+      const actorId = parseInt(request.params.actorId, 10)
+      const movieId = parseInt(request.params.movieId, 10)
+      
+      const success = await lib.removeMovieFromActor(actorId, movieId)
+      if (!success) {
+        return Boom.notFound('Association between actor and movie not found')
+      }
+      
+      return h.response().code(204)
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          actorId: Joi.number().integer().required(),
+          movieId: Joi.number().integer().required()
         })
       }
     }

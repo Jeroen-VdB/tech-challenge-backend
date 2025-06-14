@@ -27,7 +27,6 @@ describe('plugin', () => describe('actor', () => {
   interface Flags {
     readonly context: Partial<Context>
   }
-
   before(async ({ context }: Flags) => {
     context.stub = {
       lib_list: sandbox.stub(lib, 'list'),
@@ -35,6 +34,9 @@ describe('plugin', () => describe('actor', () => {
       lib_remove: sandbox.stub(lib, 'remove'),
       lib_create: sandbox.stub(lib, 'create'),
       lib_update: sandbox.stub(lib, 'update'),
+      lib_getMoviesByActor: sandbox.stub(lib, 'getMoviesByActor'),
+      lib_addMovieToActor: sandbox.stub(lib, 'addMovieToActor'),
+      lib_removeMovieFromActor: sandbox.stub(lib, 'removeMovieFromActor'),
     }
 
     // all stubs must be made before server starts
@@ -43,7 +45,6 @@ describe('plugin', () => describe('actor', () => {
     await server.start()
     context.server = server
   })
-
   beforeEach(({ context }: Flags) => {
     if (!isContext(context)) throw TypeError()
 
@@ -52,6 +53,9 @@ describe('plugin', () => describe('actor', () => {
     context.stub.lib_remove.rejects(new Error('test: provide a mock for the result'))
     context.stub.lib_create.rejects(new Error('test: provide a mock for the result'))
     context.stub.lib_update.rejects(new Error('test: provide a mock for the result'))
+    context.stub.lib_getMoviesByActor.rejects(new Error('test: provide a mock for the result'))
+    context.stub.lib_addMovieToActor.rejects(new Error('test: provide a mock for the result'))
+    context.stub.lib_removeMovieFromActor.rejects(new Error('test: provide a mock for the result'))
   })
 
   afterEach(() => sandbox.resetHistory())
@@ -250,6 +254,138 @@ describe('plugin', () => describe('actor', () => {
 
       sinon.assert.calledOnce(context.stub.lib_remove)
       sinon.assert.calledWithExactly(context.stub.lib_remove, paramId)
+    })
+  })
+
+  describe('GET /actors/{id}/movies', () => {
+    const paramId = 123
+    const [method, url] = ['GET', `/actors/${paramId}/movies`]
+
+    it('validates :id is numeric', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url: '/actors/not-a-number/movies' }
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(400)
+    })
+
+    it('returns HTTP 404 when actor is not found', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      context.stub.lib_getMoviesByActor.resolves(null)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(404)
+    })
+
+    it('returns actor with movies', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      const actorWithMovies = {
+        id: paramId,
+        name: 'Test Actor',
+        bio: 'Test Bio',
+        bornAt: new Date('1990-01-01'),
+        movies: [
+          {
+            id: 1,
+            name: 'Test Movie',
+            synopsis: 'Test Synopsis',
+            releasedAt: new Date('2025-01-01'),
+            runtimeInMinutes: 120
+          }
+        ]
+      }
+      context.stub.lib_getMoviesByActor.resolves(actorWithMovies)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(200)
+
+      sinon.assert.calledOnceWithExactly(context.stub.lib_getMoviesByActor, paramId)
+      expect(response.result).equals(actorWithMovies)
+    })
+  })
+
+  describe('POST /actors/{actorId}/movies/{movieId}', () => {
+    const actorId = 123
+    const movieId = 456
+    const [method, url] = ['POST', `/actors/${actorId}/movies/${movieId}`]
+
+    it('validates actorId and movieId are numeric', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts1: Hapi.ServerInjectOptions = { method, url: '/actors/not-a-number/movies/456' }
+      const response1 = await context.server.inject(opts1)
+      expect(response1.statusCode).equals(400)
+
+      const opts2: Hapi.ServerInjectOptions = { method, url: '/actors/123/movies/not-a-number' }
+      const response2 = await context.server.inject(opts2)
+      expect(response2.statusCode).equals(400)
+    })
+
+    it('returns HTTP 400 when association fails', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      context.stub.lib_addMovieToActor.resolves(false)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(400)
+    })
+
+    it('returns HTTP 201 when association succeeds', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      context.stub.lib_addMovieToActor.resolves(true)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(201)
+
+      sinon.assert.calledOnceWithExactly(context.stub.lib_addMovieToActor, actorId, movieId)
+    })
+  })
+
+  describe('DELETE /actors/{actorId}/movies/{movieId}', () => {
+    const actorId = 123
+    const movieId = 456
+    const [method, url] = ['DELETE', `/actors/${actorId}/movies/${movieId}`]
+
+    it('validates actorId and movieId are numeric', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts1: Hapi.ServerInjectOptions = { method, url: '/actors/not-a-number/movies/456' }
+      const response1 = await context.server.inject(opts1)
+      expect(response1.statusCode).equals(400)
+
+      const opts2: Hapi.ServerInjectOptions = { method, url: '/actors/123/movies/not-a-number' }
+      const response2 = await context.server.inject(opts2)
+      expect(response2.statusCode).equals(400)
+    })
+
+    it('returns HTTP 404 when association is not found', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      context.stub.lib_removeMovieFromActor.resolves(false)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(404)
+    })
+
+    it('returns HTTP 204 when association is successfully removed', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      context.stub.lib_removeMovieFromActor.resolves(true)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(204)
+
+      sinon.assert.calledOnceWithExactly(context.stub.lib_removeMovieFromActor, actorId, movieId)
     })
   })
 }))
