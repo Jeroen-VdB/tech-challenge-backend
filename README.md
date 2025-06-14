@@ -100,3 +100,10 @@ The solution should successfully build using `$ docker-compose build` and should
 ## Submitting
 
 You should submit the Fork link.
+
+# Answers
+
+## Init updates
+- Updated Dockerfile base to `node:22-alpine`
+- Updated compose file to work with `docker buildx bake` for better build performance
+
