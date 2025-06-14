@@ -15,5 +15,5 @@ module.exports = {
 	timeout: 4000,
 	verbose: true,
 	sourcemaps: true,
-	leak: false
+	leaks: false
 }
