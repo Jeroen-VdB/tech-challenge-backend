@@ -106,4 +106,7 @@ You should submit the Fork link.
 ## Init updates
 - Updated Dockerfile base to `node:22-alpine`
 - Updated compose file to work with `docker buildx bake` for better build performance
+- Updated npm packages
+- Using `docker compose -f 'docker-compose.yml' up -d --build 'db'` &  `docker compose -f 'docker-compose.yml' up -d --build 'api'` instead of `docker compose up` to prevent DB connection issue
+
 
