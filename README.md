@@ -109,4 +109,5 @@ You should submit the Fork link.
 - Updated npm packages
 - Using `docker compose -f 'docker-compose.yml' up -d --build 'db'` &  `docker compose -f 'docker-compose.yml' up -d --build 'api'` instead of `docker compose up` to prevent DB connection issue
 
-
+## Added Knex migrations via
+- `npx knex migrate:make migration-title --knexfile src/knexfile.ts`

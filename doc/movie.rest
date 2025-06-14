@@ -11,7 +11,10 @@ POST {{baseUrl}}
 Content-Type: application/json
 
 {
-  "name": "jose-{{$guid}}"
+  "name": "potato-{{$guid}}",
+  "synopsis": "A movie about potatoes.",
+  "releasedAt": "2023-10-01T00:00:00.000Z",
+  "runtimeInMinutes": 120
 }
 ###
 
@@ -24,7 +27,11 @@ GET {{baseUrl}}/{{id}}
 PUT {{baseUrl}}/{{id}}
 
 {
-  "name": "potato-{{$guid}}"
+  "name": "potato-{{$guid}}",
+  "synopsis": "Still a movie about potatoes.",
+  "releasedAt": "2023-10-01T00:00:00.000Z",
+  "runtimeInMinutes": 120,
+  "genreId": 1
 }
 ###
 
