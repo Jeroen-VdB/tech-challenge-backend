@@ -1,4 +1,4 @@
-import { Config } from 'knex'
+import type { Knex } from 'knex'
 
 // this file is used either by the API and the `knex` client tool
 
@@ -8,7 +8,7 @@ if(!process.env.API_SQL_SCHEMA)   throw new Error('Missing ENV variable `API_SQL
 if(!process.env.API_SQL_USER)     throw new Error('Missing ENV variable `API_SQL_USER`.')
 if(!process.env.API_SQL_PASSWORD) throw new Error('Missing ENV variable `API_SQL_PASSWORD`.')
 
-const knexConfig: Config = {
+const knexConfig: Knex.Config = {
   client: 'mysql',
   connection: {
     host: process.env.API_SQL_HOST,
