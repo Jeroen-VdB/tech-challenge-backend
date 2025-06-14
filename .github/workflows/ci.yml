@@ -3,6 +3,11 @@ name: CI Pipeline
 on:
   push:
     branches: [ "feature/**", "develop" ]
+    paths-ignore:
+      - ".github/**"
+      - "README.md"
+      - "doc"
+      - "LICENSE"
   pull_request:
     branches: [ "main", "master", "develop" ]
 
