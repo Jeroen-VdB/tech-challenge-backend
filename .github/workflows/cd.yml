@@ -10,6 +10,17 @@ on:
       - "LICENSE"
   pull_request:
     branches: [ "main", "master", "develop" ]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+        - info
+        - warning
+        - debug
 
 jobs:
   # build:
