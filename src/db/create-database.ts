@@ -1,4 +1,4 @@
-import Knex, { Config } from 'knex'
+import knex, { type Knex } from 'knex'
 
 if(!process.env.API_SQL_HOST)         throw new Error('Missing ENV variable `API_SQL_HOST`.')
 if(!process.env.API_SQL_PORT)         throw new Error('Missing ENV variable `API_SQL_PORT`.')
@@ -13,7 +13,7 @@ const API_SQL_USER: string = process.env.API_SQL_USER
 const MYSQL_ROOT_PASSWORD: string = process.env.MYSQL_ROOT_PASSWORD
 
 // create database schema using root user
-const knexConfig: Config = {
+const knexConfig: Knex.Config = {
   client: 'mysql',
   connection: {
     host: API_SQL_HOST,
@@ -27,11 +27,10 @@ const knexConfig: Config = {
 async function createDatabase() {
   const schema = API_SQL_SCHEMA
   const user = API_SQL_USER
-
-  const knex = Knex(knexConfig)
-  await knex.raw(`CREATE DATABASE IF NOT EXISTS ${schema};`)
-  await knex.raw(`GRANT ALL ON ${schema}.* TO '${user}'@'%';`)
-  await knex.destroy()
+  const database = knex(knexConfig)
+  await database.raw(`CREATE DATABASE IF NOT EXISTS ${schema};`)
+  await database.raw(`GRANT ALL ON ${schema}.* TO '${user}'@'%';`)
+  await database.destroy()
 }
 
 process.on('unhandledRejection', (err) => {
