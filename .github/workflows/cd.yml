@@ -74,12 +74,12 @@ jobs:
         region: 'us-central1'
         flags: '--set-cloudsql-instances=techchallengebackend:us-central1:backendsql'
         env_vars: |-
-          MYSQL_USER=mysql_user
-          MYSQL_PASSWORD=mysql_password
-          MYSQL_ROOT_PASSWORD=mysql_root_password
-          API_SQL_USER=mysql_user
-          API_SQL_PASSWORD=mysql_password
-          API_SQL_HOST=db
+          MYSQL_USER=root
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          API_SQL_USER=root
+          API_SQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          API_SQL_HOST=${{ secrets.SQL_HOST }}
           API_SQL_PORT=3306
           API_SQL_SCHEMA=movies
           API_PORT=8080
