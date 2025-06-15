@@ -71,6 +71,8 @@ jobs:
       with:
         service: 'api'
         source: '.'
+        region: 'us-central1'
+        flags: '--set-cloudsql-instances=techchallengebackend:us-central1:backendsql'
         env_vars: |-
           MYSQL_USER=mysql_user
           MYSQL_PASSWORD=mysql_password
