@@ -73,7 +73,7 @@ jobs:
     - id: 'deploy'
       uses: 'google-github-actions/deploy-cloudrun@v2'
       with:
-        service: 'tech-challenge-backend'
+        service: 'api-00001-wr8'
         source: '.'
 
     - name: 'Use output'
