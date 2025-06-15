@@ -60,10 +60,6 @@ jobs:
 
     steps:
     - uses: 'actions/checkout@v4'
-    
-    - uses: HatsuneMiku3939/direnv-action@v1
-      with:
-          direnvVersion: 2.32.1
 
     - uses: 'google-github-actions/auth@v2'
       with:
@@ -75,6 +71,13 @@ jobs:
       with:
         service: 'api-00001-wr8'
         source: '.'
+        env_vars: |-
+          API_SQL_USER=mysql_user
+          API_SQL_PASSWORD=mysql_password
+          API_SQL_HOST=db
+          API_SQL_PORT=3306
+          API_SQL_SCHEMA=movies
+          API_PORT=8080
 
     - name: 'Use output'
       run: 'curl "${{ steps.deploy.outputs.url }}"'
