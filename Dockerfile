@@ -1,4 +1,4 @@
-FROM node:12-alpine AS base
+FROM node:22-alpine AS base
 	WORKDIR /mobietrain
   COPY package*.json ./
 	RUN npm ci --only=prod --no-optional --no-audit --no-fund

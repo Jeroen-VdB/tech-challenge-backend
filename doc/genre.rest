@@ -1,3 +1,4 @@
+# @baseUrl=https://api-243399611962.us-central1.run.app
 @baseUrl=http://localhost:8080/genres
 @id={{create.response.body.id}}
 

@@ -1,3 +1,26 @@
+# Submission
+
+## Init updates
+- Updated Dockerfile base to `node:22-alpine`
+- Updated compose file to work with `docker buildx bake` for better build performance
+- Updated npm packages
+- Using `docker compose -f 'docker-compose.yml' up -d --build 'db'` &  `docker compose -f 'docker-compose.yml' up -d --build 'api'` instead of `docker compose up` to prevent DB connection issue
+
+## Added Knex migrations via
+- `npx knex migrate:make migration-title --knexfile src/knexfile.ts`
+
+## Progress
+- [x] MG-0002
+- [x] MG-0003
+- [x] MG-0004 (just 2 small unit test issues remain)
+- [ ] MG-0005
+- [ ] MG-0006
+- [ ] Authentication
+- [x] CI/CD
+- [ ] Observability
+
+## Progress
+
 # Mobietrain's Tech Challenge for Backend
 
 This exercise will challenge your NodeJS skills. You'll be given a starting point with specific technologies from our stack, which you should use to complete your task.

@@ -1,0 +1,45 @@
+@baseUrl = http://localhost:8080
+@id={{create.response.body.id}}
+
+### List all actors
+GET {{baseUrl}}/actors HTTP/1.1
+
+### Create a new actor
+# @name create
+POST {{baseUrl}}/actors HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Tom Hanks",
+  "bio": "Thomas Jeffrey Hanks is an American actor and filmmaker.",
+  "bornAt": "1956-07-09"
+}
+
+### Get actor by ID
+GET {{baseUrl}}/actors/{{id}} HTTP/1.1
+
+### Update actor
+PUT {{baseUrl}}/actors/{{id}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Tom Hanks",
+  "bio": "Thomas Jeffrey Hanks is an American actor and filmmaker. Known for both his comedic and dramatic roles.",
+  "bornAt": "1956-07-09"
+}
+
+### Delete actor
+DELETE {{baseUrl}}/actors/{{id}} HTTP/1.1
+
+### Get all movies for an actor
+GET {{baseUrl}}/actors/{{id}}/movies
+Accept: application/json
+
+### Add a movie to an actor
+POST {{baseUrl}}/actors/{{id}}/movies/1
+Accept: application/json
+
+### Remove a movie from an actor
+DELETE {{baseUrl}}/actors/{{id}}/movies/1
+Accept: application/json
+
