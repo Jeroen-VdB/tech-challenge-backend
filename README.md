@@ -16,7 +16,7 @@
 - [ ] MG-0005
 - [ ] MG-0006
 - [ ] Authentication
-- [ ] CI/CD
+- [x] CI/CD
 - [ ] Observability
 
 ## Progress
