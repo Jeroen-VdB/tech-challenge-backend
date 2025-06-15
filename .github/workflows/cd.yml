@@ -69,9 +69,12 @@ jobs:
     - id: 'deploy'
       uses: 'google-github-actions/deploy-cloudrun@v2'
       with:
-        service: 'api-00001-wr8'
+        service: 'api'
         source: '.'
         env_vars: |-
+          MYSQL_USER=mysql_user
+          MYSQL_PASSWORD=mysql_password
+          MYSQL_ROOT_PASSWORD=mysql_root_password
           API_SQL_USER=mysql_user
           API_SQL_PASSWORD=mysql_password
           API_SQL_HOST=db
