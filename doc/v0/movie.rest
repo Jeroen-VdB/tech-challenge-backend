@@ -1,13 +1,16 @@
 @id={{create.response.body.id}}
+@accessToken={{$dotenv %token}}
 
 # @name getAll
 GET {{baseUrl}}/v0/movies
+Authorization: Bearer {{accessToken}}
 
 ###
 
 # @name create
 POST {{baseUrl}}/v0/movies
 Content-Type: application/json
+Authorization: Bearer {{accessToken}}
 
 {
   "name": "potato-{{$guid}}",
@@ -19,11 +22,13 @@ Content-Type: application/json
 
 # @name getOne
 GET {{baseUrl}}/v0/movies/{{id}}
+Authorization: Bearer {{accessToken}}
 
 ###
 
 # @name update
 PUT {{baseUrl}}/v0/movies/{{id}}
+Authorization: Bearer {{accessToken}}
 
 {
   "name": "potato-{{$guid}}",
@@ -36,5 +41,6 @@ PUT {{baseUrl}}/v0/movies/{{id}}
 
 # @name remove
 DELETE {{baseUrl}}/v0/movies/{{id}}
+Authorization: Bearer {{accessToken}}
 
 ###

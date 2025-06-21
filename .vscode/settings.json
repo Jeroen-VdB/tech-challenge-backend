@@ -7,7 +7,8 @@
       "baseUrl": "http://localhost:8080"
     },
     "development": {
-      "baseUrl": "https://api-243399611962.us-central1.run.app"
+      "baseUrl": "https://api-243399611962.us-central1.run.app",
+      "token": "GCLOUD_TOKEN",
     }
   }
 }

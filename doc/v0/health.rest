@@ -1,4 +1,7 @@
+@accessToken={{$dotenv %token}}
+
 # @name get
 GET {{baseUrl}}/health
+Authorization: Bearer {{accessToken}}
 
 
