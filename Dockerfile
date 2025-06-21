@@ -12,5 +12,6 @@ FROM base AS builder
 # runner
 FROM base AS runner
   COPY --from=builder /mobietrain/dist /mobietrain/dist
+  COPY --from=builder /mobietrain/doc /mobietrain/doc
   CMD ["node", "--require", "./dist/instrumentation.js", "./dist/index.js"]
 	EXPOSE 8080

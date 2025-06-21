@@ -1,4 +1,4 @@
-import { ServerRoute, ResponseToolkit, Lifecycle } from '@hapi/hapi'
+import { ServerRoute, ResponseToolkit, Lifecycle, Request } from '@hapi/hapi'
 import * as health from '../../lib/health'
 
 export const healthRoutes: ServerRoute[] = [{
