@@ -1,12 +1,12 @@
 @id={{create.response.body.id}}
 
 # @name getAll
-GET {{baseUrl}}
+GET {{baseUrl}}/movies
 
 ###
 
 # @name create
-POST {{baseUrl}}
+POST {{baseUrl}}/movies
 Content-Type: application/json
 
 {
@@ -18,12 +18,12 @@ Content-Type: application/json
 ###
 
 # @name getOne
-GET {{baseUrl}}/{{id}}
+GET {{baseUrl}}/movies/{{id}}
 
 ###
 
 # @name update
-PUT {{baseUrl}}/{{id}}
+PUT {{baseUrl}}/movies/{{id}}
 
 {
   "name": "potato-{{$guid}}",
@@ -35,6 +35,6 @@ PUT {{baseUrl}}/{{id}}
 ###
 
 # @name remove
-DELETE {{baseUrl}}/{{id}}
+DELETE {{baseUrl}}/movies/{{id}}
 
 ###
