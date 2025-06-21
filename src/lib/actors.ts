@@ -18,6 +18,12 @@ export interface ActorWithMovies extends Actor {
   }[]
 }
 
+export interface FavoriteGenre {
+  id: number,
+  name: string,
+  movieCount: number
+}
+
 export function list(): Promise<Actor[]> {
   return knex.from('actor').select()
 }
@@ -111,5 +117,45 @@ export async function removeMovieFromActor(actorId: number, movieId: number): Pr
     // Handle case where table doesn't exist yet
     console.error('Error removing movie from actor:', error)
     return false
+  }
+}
+
+/**
+ * Get the favorite genre of an actor based on the genre that appears most in their movies
+ * @param actorId The ID of the actor
+ * @returns The favorite genre with movie count, or null if actor doesn't exist or has no movies with genres
+ */
+export async function getFavoriteGenre(actorId: number): Promise<FavoriteGenre | null> {
+  // First check if the actor exists
+  const actor = await find(actorId)
+  
+  if (!actor) {
+    return null
+  }
+  
+  try {
+    const result = await knex('movie_actor')
+      .join('movie', 'movie_actor.movieId', '=', 'movie.id')
+      .join('genre', 'movie.genreId', '=', 'genre.id')
+      .where('movie_actor.actorId', actorId)
+      .select('genre.id', 'genre.name')
+      .count('* as movieCount')
+      .groupBy('genre.id', 'genre.name')
+      .orderBy('movieCount', 'desc')
+      .first() as { id: number, name: string, movieCount: string | number } | undefined
+    
+    if (!result) {
+      return null
+    }
+    
+    return {
+      id: Number(result.id),
+      name: String(result.name),
+      movieCount: typeof result.movieCount === 'number' ? result.movieCount : parseInt(result.movieCount, 10)
+    }
+  } catch (error) {
+    // Handle case where tables don't exist or other errors
+    console.error('Error fetching favorite genre for actor:', error)
+    return null
   }
 }

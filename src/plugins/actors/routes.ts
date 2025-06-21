@@ -153,5 +153,26 @@ export const actorRoutes: ServerRoute[] = [
         })
       }
     }
+  },
+  {
+    method: 'GET',
+    path: '/actors/{id}/favorite-genre',
+    handler: async (request, h) => {
+      const id = parseInt(request.params.id, 10)
+      const favoriteGenre = await lib.getFavoriteGenre(id)
+      
+      if (!favoriteGenre) {
+        return Boom.notFound(`Actor with ID ${id} not found or has no movies with genres`)
+      }
+      
+      return h.response(favoriteGenre)
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          id: Joi.number().integer().required()
+        })
+      }
+    }
   }
 ]

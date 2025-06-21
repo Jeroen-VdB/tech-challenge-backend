@@ -37,6 +37,7 @@ describe('plugin', () => describe('actor', () => {
       lib_getMoviesByActor: sandbox.stub(lib, 'getMoviesByActor'),
       lib_addMovieToActor: sandbox.stub(lib, 'addMovieToActor'),
       lib_removeMovieFromActor: sandbox.stub(lib, 'removeMovieFromActor'),
+      lib_getFavoriteGenre: sandbox.stub(lib, 'getFavoriteGenre'),
     }
 
     // all stubs must be made before server starts
@@ -56,6 +57,7 @@ describe('plugin', () => describe('actor', () => {
     context.stub.lib_getMoviesByActor.rejects(new Error('test: provide a mock for the result'))
     context.stub.lib_addMovieToActor.rejects(new Error('test: provide a mock for the result'))
     context.stub.lib_removeMovieFromActor.rejects(new Error('test: provide a mock for the result'))
+    context.stub.lib_getFavoriteGenre.rejects(new Error('test: provide a mock for the result'))
   })
 
   afterEach(() => sandbox.resetHistory())
@@ -386,6 +388,48 @@ describe('plugin', () => describe('actor', () => {
       expect(response.statusCode).equals(204)
 
       sinon.assert.calledOnceWithExactly(context.stub.lib_removeMovieFromActor, actorId, movieId)
+    })
+  })
+  
+  describe('GET /actors/{id}/favorite-genre', () => {
+    const paramId = 123
+    const [method, url] = ['GET', `/actors/${paramId}/favorite-genre`]
+
+    it('validates :id is numeric', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url: '/actors/not-a-number/favorite-genre' }
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(400)
+    })
+
+    it('returns HTTP 404 when actor is not found', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      context.stub.lib_getFavoriteGenre.resolves(null)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(404)
+    })
+
+    it('returns actor favorite genre', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      const favoriteGenre = {
+        id: 1,
+        name: 'Action',
+        movieCount: 5
+      }
+      context.stub.lib_getFavoriteGenre.resolves(favoriteGenre)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(200)
+
+      sinon.assert.calledOnceWithExactly(context.stub.lib_getFavoriteGenre, paramId)
+      expect(response.result).equals(favoriteGenre)
     })
   })
 }))

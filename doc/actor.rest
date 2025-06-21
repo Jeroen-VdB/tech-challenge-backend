@@ -42,3 +42,7 @@ Accept: application/json
 DELETE {{baseUrl}}/actors/{{id}}/movies/1
 Accept: application/json
 
+### Get actor's favorite genre
+GET {{baseUrl}}/actors/{{id}}/favorite-genre
+Accept: application/json
+
