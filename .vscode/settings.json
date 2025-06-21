@@ -1,0 +1,13 @@
+{
+  "rest-client.environmentVariables": {
+    "$shared": {
+      "version": "1.0"
+    },
+    "local": {
+      "baseUrl": "http://localhost:8080"
+    },
+    "development": {
+      "baseUrl": "https://api-243399611962.us-central1.run.app"
+    }
+  }
+}

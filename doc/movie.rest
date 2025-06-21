@@ -1,4 +1,3 @@
-@baseUrl=http://localhost:8080/movies
 @id={{create.response.body.id}}
 
 # @name getAll
