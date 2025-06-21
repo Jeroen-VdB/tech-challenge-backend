@@ -21,6 +21,7 @@ describe('lib', () => describe('actor', () => {
   }
   interface Context {
     stub: Record<string, sinon.SinonStub>
+    knexStub?: sinon.SinonStub
   }
   interface Flags {
     readonly context: Partial<Context>
@@ -39,6 +40,9 @@ describe('lib', () => describe('actor', () => {
       knex_join: sandbox.stub(knex, 'join'),
       console: sandbox.stub(console, 'error'),
     }
+    
+    // Create a stub for knex when called as a function
+    context.knexStub = sandbox.stub()
   })
 
   beforeEach(({context}: Flags) => {
@@ -191,14 +195,18 @@ describe('lib', () => describe('actor', () => {
 
       const anyId = 123
       
-      // Need to explicitly return null here, not a chain
-      context.stub.knex_first.resolves(Promise.resolve(null));
+      // Configure the entire chain to return null
+      const mockChain = {
+        where: sandbox.stub().returnsThis(),
+        first: sandbox.stub().resolves(null)
+      };
+      context.stub.knex_from.withArgs('actor').returns(mockChain);
       
       const result = await getMoviesByActor(anyId)
       sinon.assert.calledOnceWithExactly(context.stub.knex_from, 'actor')
-      sinon.assert.calledOnceWithExactly(context.stub.knex_where, { id: anyId })
-      sinon.assert.calledOnce(context.stub.knex_first)
-      // TODO: expect(result).to.be.null()
+      sinon.assert.calledOnceWithExactly(mockChain.where, { id: anyId })
+      sinon.assert.calledOnce(mockChain.first)
+      expect(result).to.be.null()
     })
       it('returns actor with movies when actor exists', async ({context}: Flags) => {
       if(!isContext(context)) throw TypeError()
@@ -211,21 +219,22 @@ describe('lib', () => describe('actor', () => {
         bornAt: new Date('1990-01-01')
       }
       
-      // First we need to make knex_first directly return the actor object instead of a chain
-      context.stub.knex_first.returns(mockActor);
+      // Configure the chain for the find function
+      const mockFindChain = {
+        where: sandbox.stub().returnsThis(),
+        first: sandbox.stub().resolves(mockActor)
+      };
+      context.stub.knex_from.withArgs('actor').returns(mockFindChain);
       
-      // Make the knex function mock throw when used with 'movie' to simulate table not existing
-      // This way we avoid the duplicate stub issue
-      context.stub.knex_from.withArgs('movie').throws(
-        new Error('ER_NO_SUCH_TABLE: Table \'movies.movie_actor\' doesn\'t exist')
-      );
-        const result = await getMoviesByActor(anyId)
+      const result = await getMoviesByActor(anyId)
       
       expect(result).to.exist()
       if (result) {
-        // TODO: expect(result.id).to.equal(anyId)
+        expect(result.id).to.equal(anyId)
+        expect(result.name).to.equal('Test Actor')
+        expect(result.bio).to.equal('Test Bio')
         expect(result.movies).to.exist()
-        expect(result.movies).to.have.length(0) // Expect empty array from catch block
+        expect(result.movies).to.be.an.array()
       }
     })
   })

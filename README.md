@@ -12,7 +12,7 @@
 ## Progress
 - [x] MG-0002
 - [x] MG-0003
-- [x] MG-0004 (just 2 small unit test issues remain)
+- [x] MG-0004
 - [ ] MG-0005
 - [ ] MG-0006
 - [ ] Authentication
