@@ -1,0 +1,39 @@
+@id={{create.response.body.id}}
+@accessToken={{$dotenv %token}}
+
+# @name getAll
+GET {{baseUrl}}/v0/genres
+Authorization: Bearer {{accessToken}}
+
+###
+
+# @name create
+POST {{baseUrl}}/v0/genres
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "jose-{{$guid}}"
+}
+###
+
+# @name getOne
+GET {{baseUrl}}/v0/genres/{{id}}
+Authorization: Bearer {{accessToken}}
+
+###
+
+# @name update
+PUT {{baseUrl}}/v0/genres/{{id}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "potato-{{$guid}}"
+}
+###
+
+# @name remove
+DELETE {{baseUrl}}/v0/genres/{{id}}
+Authorization: Bearer {{accessToken}}
+
+###

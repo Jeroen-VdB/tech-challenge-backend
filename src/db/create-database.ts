@@ -1,4 +1,5 @@
 import knex, { type Knex } from 'knex'
+import { logger } from '../util/logger'
 
 if(!process.env.API_SQL_SCHEMA)       throw new Error('Missing ENV variable `API_SQL_SCHEMA`.')
 if(!process.env.API_SQL_USER)         throw new Error('Missing ENV variable `API_SQL_USER`.')
@@ -51,14 +52,19 @@ async function createDatabase() {
   const schema = API_SQL_SCHEMA
   const user = API_SQL_USER
   const database = knex(knexConfig)
+  
+  logger.info('Creating database schema', { schema, user })
+  
   await database.raw(`CREATE DATABASE IF NOT EXISTS ${schema};`)
   await database.raw(`GRANT ALL ON ${schema}.* TO '${user}'@'%';`)
   await database.destroy()
+  
+  logger.info('Database schema created successfully', { schema })
 }
 
 process.on('unhandledRejection', (err) => {
-  console.debug({ knexConfig })
-  console.error(err)
+  logger.debug('Knex config', { knexConfig })
+  logger.error('Unhandled rejection in database creation', err as Error)
   process.exit(1)
 })
 

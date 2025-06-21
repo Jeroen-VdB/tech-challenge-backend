@@ -10,8 +10,9 @@ import joi from 'joi'
 import Boom from '@hapi/boom'
 import { inspect } from 'util'
 
-import * as movies from '../../lib/movies'
-import { isHasCode } from '../../util/types'
+import * as movies from '../../../lib/movies'
+import { isHasCode } from '../../../util/types'
+import { logger } from '../../../util/logger'
 
 
 interface ParamsId {
@@ -98,11 +99,11 @@ async function post(req: Request, h: ResponseToolkit, _err?: Error): Promise<Lif
     })
       const result = {
       id,
-      path: `/movies/${id}`
+      path: `/v0/movies/${id}`
     }
     return h.response(result).code(201)
   } catch (err) {
-    console.error('Error in POST handler:', err);
+    logger.error('Error in POST handler', err as Error);
     throw err;
   }
 }
@@ -131,7 +132,7 @@ async function put(req: Request, h: ResponseToolkit, _err?: Error): Promise<Life
     
     return updated ? h.response(result).code(200) : Boom.notFound('Movie not found')
   } catch (err) {
-    console.error('Error in PUT handler:', err);
+    logger.error('Error in PUT handler', err as Error);
     throw err;
   }
 }

@@ -1,0 +1,85 @@
+openapi: 3.0.3
+info:
+  title: Tech Challenge for Backend
+  description: |
+    A comprehensive movie database API for managing actors, movies, and genres with their relationships.
+    
+    ## API Versions
+    - **v0** (Pre-release): Current development version
+    
+    For v0 API documentation, see: `/v0/openapi.yml`
+  version: 0.1.0
+  contact:
+    name: API Support
+    email: support@movieapi.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://api-243399611962.us-central1.run.app
+    description: Development server
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Check the health status of the API and database connection
+      operationId: getHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  db:
+                    type: boolean
+                    description: Database connection status
+                  http:
+                    type: boolean
+                    description: HTTP service status
+                required:
+                  - db
+                  - http
+  
+  /openapi.yml:
+    get:
+      summary: Get OpenAPI specification
+      description: Retrieve the main OpenAPI specification for this API
+      operationId: getOpenApiSpec
+      tags:
+        - Documentation
+      responses:
+        '200':
+          description: OpenAPI specification in YAML format
+          content:
+            application/x-yaml:
+              schema:
+                type: string
+  
+  /v0/openapi.yml:
+    get:
+      summary: Get v0 OpenAPI specification
+      description: Retrieve the OpenAPI specification for API version 0 (pre-release)
+      operationId: getOpenApiSpecV0
+      tags:
+        - Documentation
+      responses:
+        '200':
+          description: OpenAPI specification in YAML format
+          content:
+            application/x-yaml:
+              schema:
+                type: string
+
+tags:
+  - name: Health
+    description: API health monitoring
+  - name: Documentation
+    description: API documentation endpoints

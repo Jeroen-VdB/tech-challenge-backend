@@ -7,7 +7,7 @@ const { beforeEach, before, after, afterEach, describe, it } = lab
 
 import * as Hapi from '@hapi/hapi'
 import { genre as plugin } from './index'
-import * as lib from '../../lib/genres'
+import * as lib from '../../../lib/genres'
 
 describe('plugin', () => describe('genre', () => {
   const sandbox = Object.freeze(sinon.createSandbox())

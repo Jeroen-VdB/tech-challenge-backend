@@ -9,15 +9,43 @@
 ## Added Knex migrations via
 - `npx knex migrate:make migration-title --knexfile src/knexfile.ts`
 
+## API Versioning
+- All feature endpoints are now under `/v0` prefix (e.g., `/v0/actors`, `/v0/movies`, `/v0/genres`)
+- Health check endpoint remains unversioned at `/health`
+- OpenAPI documentation available at:
+  - `/openapi.yml` - Main API documentation
+  - `/v0/openapi.yml` - v0 specific API documentation
+- REST client files are organized under `doc/v0/`
+
+## Authentication
+Currently using the infra level Google Cloud Run IAM protection.   
+- Pros:
+   - No custom code needed
+   - We know this is secure because it's made by a tech giant
+- Cons:
+   - No application level control: it's all or nothing
+      - Often acceptable for backend services using machine-to-machine client credential flow
+      - User-facing apps should have a BFF to authenticate and authorize against
+         - The BFF can then use its own credentials to call this backend server
+         - On-behalf of could also be an options but then we need more fine grained control in the backend service
+
+### Testing
+1. Execute `gcloud auth print-identity-token` to generate a token
+2. Put that token in the `.env` file as `GCLOUD_TOKEN=eyJh...`
+3. Select the `development` environment in the VS Code REST Client
+   - It will automatically use the **GCLOUD_TOKEN** value in the `token` variable.
+
 ## Progress
 - [x] MG-0002
 - [x] MG-0003
-- [x] MG-0004 (just 2 small unit test issues remain)
-- [ ] MG-0005
-- [ ] MG-0006
-- [ ] Authentication
+- [x] MG-0004
+- [x] MG-0005
+- [x] MG-0006 (Option 1)
+- [x] MG-0007
+- [x] Authentication (infra level only for now, no app level)
+- [x] Versioning (API v0)
 - [x] CI/CD
-- [ ] Observability
+- [x] Observability
 
 ## Progress
 

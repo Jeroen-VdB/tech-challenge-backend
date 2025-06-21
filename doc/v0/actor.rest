@@ -1,0 +1,68 @@
+@id={{create.response.body.id}}
+@accessToken={{$dotenv %token}}
+
+### List all actors
+GET {{baseUrl}}/v0/actors HTTP/1.1
+Authorization: Bearer {{accessToken}}
+
+### Create a new actor
+# @name create
+POST {{baseUrl}}/v0/actors HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Tom Hanks",
+  "bio": "Thomas Jeffrey Hanks is an American actor and filmmaker.",
+  "bornAt": "1956-07-09"
+}
+
+### Get actor by ID
+GET {{baseUrl}}/v0/actors/{{id}} HTTP/1.1
+Authorization: Bearer {{accessToken}}
+
+### Update actor
+PUT {{baseUrl}}/v0/actors/{{id}} HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Tom Hanks",
+  "bio": "Thomas Jeffrey Hanks is an American actor and filmmaker. Known for both his comedic and dramatic roles.",
+  "bornAt": "1956-07-09"
+}
+
+### Delete actor
+DELETE {{baseUrl}}/v0/actors/{{id}} HTTP/1.1
+Authorization: Bearer {{accessToken}}
+
+### Get all movies for an actor
+GET {{baseUrl}}/v0/actors/{{id}}/movies
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+### Add a movie to an actor
+POST {{baseUrl}}/v0/actors/{{id}}/movies/1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "characterName": "Forrest Gump"
+}
+
+### Remove a movie from an actor
+DELETE {{baseUrl}}/v0/actors/{{id}}/movies/1
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+### Get actor's favorite genre
+GET {{baseUrl}}/v0/actors/{{id}}/favorite-genre
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+### Get actor's character names
+GET {{baseUrl}}/v0/actors/{{id}}/characters
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+

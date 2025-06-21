@@ -1,14 +1,16 @@
-@baseUrl=http://localhost:8080/movies
 @id={{create.response.body.id}}
+@accessToken={{$dotenv %token}}
 
 # @name getAll
-GET {{baseUrl}}
+GET {{baseUrl}}/v0/movies
+Authorization: Bearer {{accessToken}}
 
 ###
 
 # @name create
-POST {{baseUrl}}
+POST {{baseUrl}}/v0/movies
 Content-Type: application/json
+Authorization: Bearer {{accessToken}}
 
 {
   "name": "potato-{{$guid}}",
@@ -19,12 +21,14 @@ Content-Type: application/json
 ###
 
 # @name getOne
-GET {{baseUrl}}/{{id}}
+GET {{baseUrl}}/v0/movies/{{id}}
+Authorization: Bearer {{accessToken}}
 
 ###
 
 # @name update
-PUT {{baseUrl}}/{{id}}
+PUT {{baseUrl}}/v0/movies/{{id}}
+Authorization: Bearer {{accessToken}}
 
 {
   "name": "potato-{{$guid}}",
@@ -36,6 +40,7 @@ PUT {{baseUrl}}/{{id}}
 ###
 
 # @name remove
-DELETE {{baseUrl}}/{{id}}
+DELETE {{baseUrl}}/v0/movies/{{id}}
+Authorization: Bearer {{accessToken}}
 
 ###

@@ -1,4 +1,5 @@
 import { knex } from '../util/knex'
+import { logger } from '../util/logger'
 
 export interface Actor {
   id: number,
@@ -14,8 +15,15 @@ export interface ActorWithMovies extends Actor {
     synopsis?: string,
     releasedAt: Date,
     runtimeInMinutes: number,
-    genreId?: number
+    genreId?: number,
+    characterName?: string
   }[]
+}
+
+export interface FavoriteGenre {
+  id: number,
+  name: string,
+  movieCount: number
 }
 
 export function list(): Promise<Actor[]> {
@@ -61,7 +69,7 @@ export async function getMoviesByActor(actorId: number): Promise<ActorWithMovies
     const movies = await knex('movie')
       .join('movie_actor', 'movie.id', '=', 'movie_actor.movieId')
       .where('movie_actor.actorId', actorId)
-      .select('movie.*')
+      .select('movie.*', 'movie_actor.characterName')
     
     return {
       ...actor,
@@ -69,7 +77,7 @@ export async function getMoviesByActor(actorId: number): Promise<ActorWithMovies
     }
   } catch (error) {
     // For tests - if the migration hasn't been run yet, return empty movies array
-    console.error('Error fetching movies for actor:', error)
+    logger.error('Error fetching movies for actor', error as Error)
     return {
       ...actor,
       movies: []
@@ -83,9 +91,9 @@ export async function getMoviesByActor(actorId: number): Promise<ActorWithMovies
  * @param movieId The ID of the movie
  * @returns true if successful, false if either ID doesn't exist
  */
-export async function addMovieToActor(actorId: number, movieId: number): Promise<boolean> {
+export async function addMovieToActor(actorId: number, movieId: number, characterName?: string): Promise<boolean> {
   try {
-    await knex.into('movie_actor').insert({ actorId, movieId })
+    await knex.into('movie_actor').insert({ actorId, movieId, characterName })
     return true
   } catch (error) {
     // Could be a foreign key violation (actor or movie doesn't exist)
@@ -109,7 +117,73 @@ export async function removeMovieFromActor(actorId: number, movieId: number): Pr
     return count > 0
   } catch (error) {
     // Handle case where table doesn't exist yet
-    console.error('Error removing movie from actor:', error)
+    logger.error('Error removing movie from actor', error as Error)
     return false
+  }
+}
+
+/**
+ * Get all character names that an actor has played
+ * @param actorId The ID of the actor
+ * @returns Array of character names, or null if actor doesn't exist
+ */
+export async function getCharacterNames(actorId: number): Promise<string[] | null> {
+  // First check if the actor exists
+  const actor = await find(actorId)
+  
+  if (!actor) {
+    return null
+  }
+  
+  try {
+    const results = await knex('movie_actor')
+      .where('actorId', actorId)
+      .whereNotNull('characterName')
+      .select('characterName')
+    
+    return results.map(r => r.characterName)
+  } catch (error) {
+    logger.error('Error fetching character names for actor', error as Error)
+    return []
+  }
+}
+
+/**
+ * Get the favorite genre of an actor based on the genre that appears most in their movies
+ * @param actorId The ID of the actor
+ * @returns The favorite genre with movie count, or null if actor doesn't exist or has no movies with genres
+ */
+export async function getFavoriteGenre(actorId: number): Promise<FavoriteGenre | null> {
+  // First check if the actor exists
+  const actor = await find(actorId)
+  
+  if (!actor) {
+    return null
+  }
+  
+  try {
+    const result = await knex('movie_actor')
+      .join('movie', 'movie_actor.movieId', '=', 'movie.id')
+      .join('genre', 'movie.genreId', '=', 'genre.id')
+      .where('movie_actor.actorId', actorId)
+      .select('genre.id', 'genre.name')
+      .count('* as movieCount')
+      .groupBy('genre.id', 'genre.name')
+      .orderBy('movieCount', 'desc')
+      .first() as { id: number, name: string, movieCount: string | number } | undefined
+    
+    if (!result) {
+      return null
+    }
+    
+    return {
+      id: Number(result.id),
+      name: String(result.name),
+      movieCount: typeof result.movieCount === 'number' ? result.movieCount : parseInt(result.movieCount, 10)
+    }
+  } catch (error) {
+    // Handle case where tables don't exist or other errors
+    logger.error('Error fetching favorite genre for actor', error as Error)
+    return null
   }
 }

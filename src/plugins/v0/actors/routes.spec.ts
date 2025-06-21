@@ -3,7 +3,7 @@ import * as sinon from 'sinon'
 import { expect } from '@hapi/code'
 import * as Lab from '@hapi/lab'
 
-import * as lib from '../../lib/actors'
+import * as lib from '../../../lib/actors'
 import { actor as plugin } from '.'
 
 const script = Lab.script as any
@@ -37,6 +37,8 @@ describe('plugin', () => describe('actor', () => {
       lib_getMoviesByActor: sandbox.stub(lib, 'getMoviesByActor'),
       lib_addMovieToActor: sandbox.stub(lib, 'addMovieToActor'),
       lib_removeMovieFromActor: sandbox.stub(lib, 'removeMovieFromActor'),
+      lib_getFavoriteGenre: sandbox.stub(lib, 'getFavoriteGenre'),
+      lib_getCharacterNames: sandbox.stub(lib, 'getCharacterNames'),
     }
 
     // all stubs must be made before server starts
@@ -56,6 +58,7 @@ describe('plugin', () => describe('actor', () => {
     context.stub.lib_getMoviesByActor.rejects(new Error('test: provide a mock for the result'))
     context.stub.lib_addMovieToActor.rejects(new Error('test: provide a mock for the result'))
     context.stub.lib_removeMovieFromActor.rejects(new Error('test: provide a mock for the result'))
+    context.stub.lib_getFavoriteGenre.rejects(new Error('test: provide a mock for the result'))
   })
 
   afterEach(() => sandbox.resetHistory())
@@ -121,7 +124,7 @@ describe('plugin', () => describe('actor', () => {
       sinon.assert.calledOnce(context.stub.lib_create)
       expect(response.result).equals({
         id: anyResult,
-        path: `/actors/${anyResult}`
+        path: `/v0/actors/${anyResult}`
       })
     })
   })
@@ -345,7 +348,7 @@ describe('plugin', () => describe('actor', () => {
       const response = await context.server.inject(opts)
       expect(response.statusCode).equals(201)
 
-      sinon.assert.calledOnceWithExactly(context.stub.lib_addMovieToActor, actorId, movieId)
+      sinon.assert.calledOnceWithExactly(context.stub.lib_addMovieToActor, actorId, movieId, undefined)
     })
   })
 
@@ -386,6 +389,130 @@ describe('plugin', () => describe('actor', () => {
       expect(response.statusCode).equals(204)
 
       sinon.assert.calledOnceWithExactly(context.stub.lib_removeMovieFromActor, actorId, movieId)
+    })
+  })
+  
+  describe('GET /actors/{id}/favorite-genre', () => {
+    const paramId = 123
+    const [method, url] = ['GET', `/actors/${paramId}/favorite-genre`]
+
+    it('validates :id is numeric', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url: '/actors/not-a-number/favorite-genre' }
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(400)
+    })
+
+    it('returns HTTP 404 when actor is not found', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      context.stub.lib_getFavoriteGenre.resolves(null)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(404)
+    })
+
+    it('returns actor favorite genre', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      const favoriteGenre = {
+        id: 1,
+        name: 'Action',
+        movieCount: 5
+      }
+      context.stub.lib_getFavoriteGenre.resolves(favoriteGenre)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(200)
+
+      sinon.assert.calledOnceWithExactly(context.stub.lib_getFavoriteGenre, paramId)
+      expect(response.result).equals(favoriteGenre)
+    })
+  })
+
+  describe('GET /actors/{id}/characters', () => {
+    const method = 'GET'
+    const url = '/actors/888/characters'
+    const paramId = 888
+    
+    it('returns HTTP 400 when ID is not a number', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url: '/actors/not-a-number/characters' }
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(400)
+    })
+
+    it('returns HTTP 404 when actor is not found', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      context.stub.lib_getCharacterNames.resolves(null)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(404)
+    })
+
+    it('returns character names for the actor', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      const characterNames = ['Iron Man', 'Tony Stark', 'Sherlock Holmes']
+      context.stub.lib_getCharacterNames.resolves(characterNames)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(200)
+
+      sinon.assert.calledOnceWithExactly(context.stub.lib_getCharacterNames, paramId)
+      expect(response.result).equals({ characterNames })
+    })
+    
+    it('returns empty array when actor has no character names', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      context.stub.lib_getCharacterNames.resolves([])
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(200)
+      expect(response.result).equals({ characterNames: [] })
+    })
+  })
+
+  describe('POST /actors/{actorId}/movies/{movieId} with character name', () => {
+    const method = 'POST'
+    const url = '/actors/123/movies/456'
+    const actorId = 123
+    const movieId = 456
+    
+    it('adds movie to actor with character name', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const payload = { characterName: 'Iron Man' }
+      const opts: Hapi.ServerInjectOptions = { method, url, payload }
+      context.stub.lib_addMovieToActor.resolves(true)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(201)
+
+      sinon.assert.calledOnceWithExactly(context.stub.lib_addMovieToActor, actorId, movieId, 'Iron Man')
+    })
+    
+    it('adds movie to actor without character name', async ({ context }: Flags) => {
+      if (!isContext(context)) throw TypeError()
+      
+      const opts: Hapi.ServerInjectOptions = { method, url }
+      context.stub.lib_addMovieToActor.resolves(true)
+
+      const response = await context.server.inject(opts)
+      expect(response.statusCode).equals(201)
+
+      sinon.assert.calledOnceWithExactly(context.stub.lib_addMovieToActor, actorId, movieId, undefined)
     })
   })
 }))
