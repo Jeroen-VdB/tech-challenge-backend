@@ -1,0 +1,33 @@
+@id={{create.response.body.id}}
+
+# @name getAll
+GET {{baseUrl}}/v0/genres
+
+###
+
+# @name create
+POST {{baseUrl}}/v0/genres
+Content-Type: application/json
+
+{
+  "name": "jose-{{$guid}}"
+}
+###
+
+# @name getOne
+GET {{baseUrl}}/v0/genres/{{id}}
+
+###
+
+# @name update
+PUT {{baseUrl}}/v0/genres/{{id}}
+
+{
+  "name": "potato-{{$guid}}"
+}
+###
+
+# @name remove
+DELETE {{baseUrl}}/v0/genres/{{id}}
+
+###

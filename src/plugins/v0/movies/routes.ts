@@ -10,8 +10,8 @@ import joi from 'joi'
 import Boom from '@hapi/boom'
 import { inspect } from 'util'
 
-import * as movies from '../../lib/movies'
-import { isHasCode } from '../../util/types'
+import * as movies from '../../../lib/movies'
+import { isHasCode } from '../../../util/types'
 
 
 interface ParamsId {
@@ -98,7 +98,7 @@ async function post(req: Request, h: ResponseToolkit, _err?: Error): Promise<Lif
     })
       const result = {
       id,
-      path: `/movies/${id}`
+      path: `/v0/movies/${id}`
     }
     return h.response(result).code(201)
   } catch (err) {

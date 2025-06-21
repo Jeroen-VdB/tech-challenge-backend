@@ -1,12 +1,10 @@
 import { Plugin } from '@hapi/hapi'
 import { health } from './health'
-import { genre } from './genres'
-import { movie } from './movies'
-import { actor } from './actors'
+import { v0 } from './v0'
+import { docs } from './docs'
 
 export const plugins: Plugin<void>[] = [
   health,
-  genre,
-  movie,
-  actor,
+  v0,
+  docs,
 ]

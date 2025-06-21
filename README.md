@@ -9,13 +9,23 @@
 ## Added Knex migrations via
 - `npx knex migrate:make migration-title --knexfile src/knexfile.ts`
 
+## API Versioning
+- All feature endpoints are now under `/v0` prefix (e.g., `/v0/actors`, `/v0/movies`, `/v0/genres`)
+- Health check endpoint remains unversioned at `/health`
+- OpenAPI documentation available at:
+  - `/openapi.yml` - Main API documentation
+  - `/v0/openapi.yml` - v0 specific API documentation
+- REST client files are organized under `doc/v0/`
+
 ## Progress
 - [x] MG-0002
 - [x] MG-0003
 - [x] MG-0004
 - [x] MG-0005
-- [ ] MG-0006
+- [x] MG-0006
+- [x] MG-0007 (View Actor's character names)
 - [ ] Authentication
+- [x] Versioning (API v0)
 - [x] CI/CD
 - [ ] Observability
 

@@ -9,8 +9,8 @@ import {
 import joi from 'joi'
 import Boom from '@hapi/boom'
 
-import * as genres from '../../lib/genres'
-import { isHasCode } from '../../util/types'
+import * as genres from '../../../lib/genres'
+import { isHasCode } from '../../../util/types'
 
 
 interface ParamsId {

@@ -3,7 +3,7 @@ import * as sinon from 'sinon'
 import { expect } from '@hapi/code'
 import * as Lab from '@hapi/lab'
 
-import * as lib from '../../lib/actors'
+import * as lib from '../../../lib/actors'
 import { actor as plugin } from '.'
 
 const script = Lab.script as any
@@ -124,7 +124,7 @@ describe('plugin', () => describe('actor', () => {
       sinon.assert.calledOnce(context.stub.lib_create)
       expect(response.result).equals({
         id: anyResult,
-        path: `/actors/${anyResult}`
+        path: `/v0/actors/${anyResult}`
       })
     })
   })

@@ -1,6 +1,6 @@
 import { ServerRoute } from '@hapi/hapi'
 import Joi from 'joi'
-import * as lib from '../../lib/actors'
+import * as lib from '../../../lib/actors'
 import Boom from '@hapi/boom'
 
 export const actorRoutes: ServerRoute[] = [
@@ -20,7 +20,7 @@ export const actorRoutes: ServerRoute[] = [
       const id = await lib.create(actor)
       return h.response({
         id,
-        path: `/actors/${id}`
+        path: `/v0/actors/${id}`
       }).code(201)
     },
     options: {

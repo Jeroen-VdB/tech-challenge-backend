@@ -1,0 +1,40 @@
+@id={{create.response.body.id}}
+
+# @name getAll
+GET {{baseUrl}}/v0/movies
+
+###
+
+# @name create
+POST {{baseUrl}}/v0/movies
+Content-Type: application/json
+
+{
+  "name": "potato-{{$guid}}",
+  "synopsis": "A movie about potatoes.",
+  "releasedAt": "2023-10-01T00:00:00.000Z",
+  "runtimeInMinutes": 120
+}
+###
+
+# @name getOne
+GET {{baseUrl}}/v0/movies/{{id}}
+
+###
+
+# @name update
+PUT {{baseUrl}}/v0/movies/{{id}}
+
+{
+  "name": "potato-{{$guid}}",
+  "synopsis": "Still a movie about potatoes.",
+  "releasedAt": "2023-10-01T00:00:00.000Z",
+  "runtimeInMinutes": 120,
+  "genreId": 1
+}
+###
+
+# @name remove
+DELETE {{baseUrl}}/v0/movies/{{id}}
+
+###

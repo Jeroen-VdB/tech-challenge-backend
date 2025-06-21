@@ -7,7 +7,7 @@ const { beforeEach, before, after, afterEach, describe, it } = lab
 
 import * as Hapi from '@hapi/hapi'
 import { movie as plugin } from './index'
-import * as lib from '../../lib/movies'
+import * as lib from '../../../lib/movies'
 
 describe('plugin', () => describe('movie', () => {
   const sandbox = Object.freeze(sinon.createSandbox())
@@ -114,7 +114,7 @@ describe('plugin', () => describe('movie', () => {
       sinon.assert.calledOnce(context.stub.lib_create)
       expect(response.result).equals({
         id: anyResult,
-        path: `/movies/${anyResult}`
+        path: `/v0/movies/${anyResult}`
       })
     })
   })
