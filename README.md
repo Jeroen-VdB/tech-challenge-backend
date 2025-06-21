@@ -13,7 +13,7 @@
 - [x] MG-0002
 - [x] MG-0003
 - [x] MG-0004
-- [ ] MG-0005
+- [x] MG-0005
 - [ ] MG-0006
 - [ ] Authentication
 - [x] CI/CD
