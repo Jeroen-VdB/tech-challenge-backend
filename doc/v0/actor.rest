@@ -1,5 +1,4 @@
-@id=3
-#{{create.response.body.id}}
+@id={{create.response.body.id}}
 
 ### List all actors
 GET {{baseUrl}}/v0/actors HTTP/1.1
