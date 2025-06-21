@@ -1,4 +1,5 @@
 import { knex } from '../util/knex'
+import { logger } from '../util/logger'
 
 export interface Actor {
   id: number,
@@ -76,7 +77,7 @@ export async function getMoviesByActor(actorId: number): Promise<ActorWithMovies
     }
   } catch (error) {
     // For tests - if the migration hasn't been run yet, return empty movies array
-    console.error('Error fetching movies for actor:', error)
+    logger.error('Error fetching movies for actor', error as Error)
     return {
       ...actor,
       movies: []
@@ -116,7 +117,7 @@ export async function removeMovieFromActor(actorId: number, movieId: number): Pr
     return count > 0
   } catch (error) {
     // Handle case where table doesn't exist yet
-    console.error('Error removing movie from actor:', error)
+    logger.error('Error removing movie from actor', error as Error)
     return false
   }
 }
@@ -142,7 +143,7 @@ export async function getCharacterNames(actorId: number): Promise<string[] | nul
     
     return results.map(r => r.characterName)
   } catch (error) {
-    console.error('Error fetching character names for actor:', error)
+    logger.error('Error fetching character names for actor', error as Error)
     return []
   }
 }
@@ -182,7 +183,7 @@ export async function getFavoriteGenre(actorId: number): Promise<FavoriteGenre |
     }
   } catch (error) {
     // Handle case where tables don't exist or other errors
-    console.error('Error fetching favorite genre for actor:', error)
+    logger.error('Error fetching favorite genre for actor', error as Error)
     return null
   }
 }

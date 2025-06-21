@@ -1,5 +1,6 @@
 import * as Hapi from '@hapi/hapi'
 import { plugins } from './plugins'
+import { logger } from './util/logger'
 
 const init = async (port = '8080') => {
 
@@ -8,11 +9,11 @@ const init = async (port = '8080') => {
   await server.register(plugins)
   await server.start()
 
-  console.log('Server running on %s', server.info.uri)
+  logger.info('Server running', { uri: server.info.uri, port })
 }
 
 process.on('unhandledRejection', (err) => {
-  console.error(err)
+  logger.error('Unhandled rejection', err as Error)
   process.exit(1)
 })
 
@@ -20,6 +21,6 @@ process.on('unhandledRejection', (err) => {
 Object.keys(process.env)
   .filter(it => it.startsWith('API_'))
   .sort()
-  .forEach(it => console.debug(`${it}=${process.env[it] || '*empty*'}`))
+  .forEach(it => logger.debug(`Environment variable: ${it}=${process.env[it] || '*empty*'}`))
 
 void init(process.env.MT_PORT)

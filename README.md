@@ -22,12 +22,12 @@
 - [x] MG-0003
 - [x] MG-0004
 - [x] MG-0005
-- [x] MG-0006
-- [x] MG-0007 (View Actor's character names)
+- [x] MG-0006 (Option 1)
+- [x] MG-0007
 - [ ] Authentication
 - [x] Versioning (API v0)
 - [x] CI/CD
-- [ ] Observability
+- [x] Observability
 
 ## Progress
 

@@ -1,4 +1,5 @@
 import { knex } from '../util/knex'
+import { logger } from '../util/logger'
 
 export async function check(): Promise<Record<string, boolean>> {
   const result: Record<string, boolean> = {}
@@ -12,7 +13,7 @@ async function checkDb(): Promise<boolean> {
     await knex.raw('SELECT 1 FROM dual;')
     return true
   } catch(er) {
-    // console.error(er)
+    logger.warn('Database health check failed', er as Error)
     return false
   }
 }
