@@ -114,8 +114,10 @@ export const actorRoutes: ServerRoute[] = [
     handler: async (request, h) => {
       const actorId = parseInt(request.params.actorId, 10)
       const movieId = parseInt(request.params.movieId, 10)
+      const payload = request.payload as { characterName?: string } | undefined
+      const characterName = payload?.characterName
       
-      const success = await lib.addMovieToActor(actorId, movieId)
+      const success = await lib.addMovieToActor(actorId, movieId, characterName)
       if (!success) {
         return Boom.badRequest('Unable to associate actor with movie. Check that both IDs exist and are not already associated.')
       }
@@ -127,7 +129,10 @@ export const actorRoutes: ServerRoute[] = [
         params: Joi.object({
           actorId: Joi.number().integer().required(),
           movieId: Joi.number().integer().required()
-        })
+        }),
+        payload: Joi.object({
+          characterName: Joi.string().optional()
+        }).optional().allow(null)
       }
     }
   },
@@ -166,6 +171,27 @@ export const actorRoutes: ServerRoute[] = [
       }
       
       return h.response(favoriteGenre)
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          id: Joi.number().integer().required()
+        })
+      }
+    }
+  },
+  {
+    method: 'GET',
+    path: '/actors/{id}/characters',
+    handler: async (request, h) => {
+      const id = parseInt(request.params.id, 10)
+      const characterNames = await lib.getCharacterNames(id)
+      
+      if (characterNames === null) {
+        return Boom.notFound(`Actor with ID ${id} not found`)
+      }
+      
+      return h.response({ characterNames })
     },
     options: {
       validate: {

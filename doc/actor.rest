@@ -1,4 +1,5 @@
-@id={{create.response.body.id}}
+@id=3
+#{{create.response.body.id}}
 
 ### List all actors
 GET {{baseUrl}}/actors HTTP/1.1
@@ -37,6 +38,11 @@ Accept: application/json
 ### Add a movie to an actor
 POST {{baseUrl}}/actors/{{id}}/movies/1
 Accept: application/json
+Content-Type: application/json
+
+{
+  "characterName": "Forrest Gump"
+}
 
 ### Remove a movie from an actor
 DELETE {{baseUrl}}/actors/{{id}}/movies/1
@@ -44,5 +50,9 @@ Accept: application/json
 
 ### Get actor's favorite genre
 GET {{baseUrl}}/actors/{{id}}/favorite-genre
+Accept: application/json
+
+### Get actor's character names
+GET {{baseUrl}}/actors/{{id}}/characters
 Accept: application/json
 

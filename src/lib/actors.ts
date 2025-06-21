@@ -14,7 +14,8 @@ export interface ActorWithMovies extends Actor {
     synopsis?: string,
     releasedAt: Date,
     runtimeInMinutes: number,
-    genreId?: number
+    genreId?: number,
+    characterName?: string
   }[]
 }
 
@@ -67,7 +68,7 @@ export async function getMoviesByActor(actorId: number): Promise<ActorWithMovies
     const movies = await knex('movie')
       .join('movie_actor', 'movie.id', '=', 'movie_actor.movieId')
       .where('movie_actor.actorId', actorId)
-      .select('movie.*')
+      .select('movie.*', 'movie_actor.characterName')
     
     return {
       ...actor,
@@ -89,9 +90,9 @@ export async function getMoviesByActor(actorId: number): Promise<ActorWithMovies
  * @param movieId The ID of the movie
  * @returns true if successful, false if either ID doesn't exist
  */
-export async function addMovieToActor(actorId: number, movieId: number): Promise<boolean> {
+export async function addMovieToActor(actorId: number, movieId: number, characterName?: string): Promise<boolean> {
   try {
-    await knex.into('movie_actor').insert({ actorId, movieId })
+    await knex.into('movie_actor').insert({ actorId, movieId, characterName })
     return true
   } catch (error) {
     // Could be a foreign key violation (actor or movie doesn't exist)
@@ -117,6 +118,32 @@ export async function removeMovieFromActor(actorId: number, movieId: number): Pr
     // Handle case where table doesn't exist yet
     console.error('Error removing movie from actor:', error)
     return false
+  }
+}
+
+/**
+ * Get all character names that an actor has played
+ * @param actorId The ID of the actor
+ * @returns Array of character names, or null if actor doesn't exist
+ */
+export async function getCharacterNames(actorId: number): Promise<string[] | null> {
+  // First check if the actor exists
+  const actor = await find(actorId)
+  
+  if (!actor) {
+    return null
+  }
+  
+  try {
+    const results = await knex('movie_actor')
+      .where('actorId', actorId)
+      .whereNotNull('characterName')
+      .select('characterName')
+    
+    return results.map(r => r.characterName)
+  } catch (error) {
+    console.error('Error fetching character names for actor:', error)
+    return []
   }
 }
 

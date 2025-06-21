@@ -3,7 +3,7 @@ import { expect } from '@hapi/code'
 import * as sinon from 'sinon'
 
 import { knex } from '../util/knex'
-import { Actor, list, find, remove, create, update, getMoviesByActor, addMovieToActor, removeMovieFromActor, getFavoriteGenre } from './actors'
+import { Actor, list, find, remove, create, update, getMoviesByActor, addMovieToActor, removeMovieFromActor, getFavoriteGenre, getCharacterNames } from './actors'
 
 const script = Lab.script as any
 
@@ -250,7 +250,7 @@ describe('lib', () => describe('actor', () => {
       const result = await addMovieToActor(actorId, movieId)
 
       sinon.assert.calledOnceWithExactly(context.stub.knex_into, 'movie_actor')
-      sinon.assert.calledOnceWithExactly(context.stub.knex_insert, { actorId, movieId })
+      sinon.assert.calledOnceWithExactly(context.stub.knex_insert, { actorId, movieId, characterName: undefined })
 
       expect(result).to.be.true()
     })
@@ -399,6 +399,7 @@ describe('lib', () => describe('actor', () => {
       // Stub knex to return our mock chain when called with 'movie_actor'
       const knexStub = sandbox.stub();
       knexStub.withArgs('movie_actor').returns(mockGenreChain);
+      // @ts-ignore - Adding from property for test mocking
       knexStub.from = context.stub.knex_from;
       
       // Replace knex in the module
@@ -440,6 +441,149 @@ describe('lib', () => describe('actor', () => {
       // Verify that find was called
       sinon.assert.calledOnce(context.stub.knex_from)
       sinon.assert.calledWith(context.stub.knex_from, 'actor')
+    })
+  })
+  
+  describe('addMovieToActor with character name', () => {
+    it('successfully adds movie to actor with character name', async ({context}: Flags) => {
+      if(!isContext(context)) throw TypeError()
+
+      const actorId = 123
+      const movieId = 456
+      const characterName = 'John Doe'
+
+      context.stub.knex_insert.resolves()
+
+      const result = await addMovieToActor(actorId, movieId, characterName)
+
+      sinon.assert.calledOnceWithExactly(context.stub.knex_into, 'movie_actor')
+      sinon.assert.calledOnceWithExactly(context.stub.knex_insert, { actorId, movieId, characterName })
+
+      expect(result).to.be.true()
+    })
+  })
+  
+  describe('getCharacterNames', () => {
+    it('returns null when actor does not exist', async ({context}: Flags) => {
+      if(!isContext(context)) throw TypeError()
+      
+      const anyId = 999
+      
+      // Configure mock chain for find to return null
+      const mockFindChain = {
+        where: sandbox.stub().returnsThis(),
+        first: sandbox.stub().resolves(null)
+      };
+      context.stub.knex_from.withArgs('actor').returns(mockFindChain);
+      
+      const result = await getCharacterNames(anyId)
+      
+      expect(result).to.be.null()
+    })
+    
+    it('returns array of character names when actor exists', async ({context}: Flags) => {
+      if(!isContext(context)) throw TypeError()
+      
+      const anyId = 123
+      const mockActor = {
+        id: anyId,
+        name: 'Test Actor',
+        bio: 'Test Bio',
+        bornAt: new Date('1990-01-01')
+      }
+      
+      // Configure mock chain for find to return actor
+      const mockFindChain = {
+        where: sandbox.stub().returnsThis(),
+        first: sandbox.stub().resolves(mockActor)
+      };
+      context.stub.knex_from.withArgs('actor').returns(mockFindChain);
+      
+      // Mock the character names query
+      const knexModule = require('../util/knex');
+      const originalKnex = knexModule.knex;
+      
+      const mockCharacterResults = [
+        { characterName: 'Iron Man' },
+        { characterName: 'Tony Stark' },
+        { characterName: 'Sherlock Holmes' }
+      ];
+      
+      const mockCharacterChain = {
+        where: sandbox.stub().returnsThis(),
+        whereNotNull: sandbox.stub().returnsThis(),
+        select: sandbox.stub().resolves(mockCharacterResults)
+      };
+      
+      const knexStub = sandbox.stub();
+      knexStub.withArgs('movie_actor').returns(mockCharacterChain);
+      // @ts-ignore - Adding from property for test mocking
+      knexStub.from = context.stub.knex_from;
+      
+      knexModule.knex = knexStub;
+      
+      try {
+        const result = await getCharacterNames(anyId)
+        
+        expect(result).to.exist()
+        expect(result).to.be.an.array()
+        expect(result).to.have.length(3)
+        expect(result).to.equal(['Iron Man', 'Tony Stark', 'Sherlock Holmes'])
+        
+        sinon.assert.calledOnce(knexStub)
+        sinon.assert.calledWith(knexStub, 'movie_actor')
+        sinon.assert.calledWith(mockCharacterChain.where, 'actorId', anyId)
+        sinon.assert.calledWith(mockCharacterChain.whereNotNull, 'characterName')
+        sinon.assert.calledWith(mockCharacterChain.select, 'characterName')
+      } finally {
+        knexModule.knex = originalKnex;
+      }
+    })
+    
+    it('returns empty array when actor has no character names', async ({context}: Flags) => {
+      if(!isContext(context)) throw TypeError()
+      
+      const anyId = 123
+      const mockActor = {
+        id: anyId,
+        name: 'Test Actor',
+        bio: 'Test Bio',
+        bornAt: new Date('1990-01-01')
+      }
+      
+      // Configure mock chain for find to return actor
+      const mockFindChain = {
+        where: sandbox.stub().returnsThis(),
+        first: sandbox.stub().resolves(mockActor)
+      };
+      context.stub.knex_from.withArgs('actor').returns(mockFindChain);
+      
+      // Mock the character names query to return empty
+      const knexModule = require('../util/knex');
+      const originalKnex = knexModule.knex;
+      
+      const mockCharacterChain = {
+        where: sandbox.stub().returnsThis(),
+        whereNotNull: sandbox.stub().returnsThis(),
+        select: sandbox.stub().resolves([])
+      };
+      
+      const knexStub = sandbox.stub();
+      knexStub.withArgs('movie_actor').returns(mockCharacterChain);
+      // @ts-ignore - Adding from property for test mocking
+      knexStub.from = context.stub.knex_from;
+      
+      knexModule.knex = knexStub;
+      
+      try {
+        const result = await getCharacterNames(anyId)
+        
+        expect(result).to.exist()
+        expect(result).to.be.an.array()
+        expect(result).to.have.length(0)
+      } finally {
+        knexModule.knex = originalKnex;
+      }
     })
   })
 }))
